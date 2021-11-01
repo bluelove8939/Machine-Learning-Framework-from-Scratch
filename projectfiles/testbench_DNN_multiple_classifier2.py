@@ -25,8 +25,6 @@ if __name__ == "__main__":
     # fitting model
     random_state = None
     optimizer = Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=1e-8)
-    # optimizer = AdaGrad(lr=0.001, epsilon=1e-8)
-    # optimizer = SGD(lr=0.001, momentum=0, decay=0)
     bias_initializer   = Zeros()
 
     model = Sequential()
@@ -41,20 +39,6 @@ if __name__ == "__main__":
                     kernel_initializer=HeNormal(fan_in=100, random_state=random_state),
                     bias_initializer=bias_initializer))
     model.compile(optimizer=optimizer, loss='cee')
-
-    # model = Sequential()
-    # model.add(Flatten(input_shape=(28, 28)))
-    # model.add(Dense(units=512, activation='relu', input_shape=784,
-    #                 kernel_initializer=RandomNormal(mean=0., stddev=0.01, random_state=random_state),
-    #                 bias_initializer=bias_initializer))
-    # model.add(Dense(units=100, activation='relu', input_shape=512,
-    #                 kernel_initializer=RandomNormal(mean=0., stddev=0.01, random_state=random_state),
-    #                 bias_initializer=bias_initializer))
-    # model.add(Dense(units=10, activation='softmax', input_shape=100,
-    #                 kernel_initializer=RandomNormal(mean=0., stddev=0.01, random_state=random_state),
-    #                 bias_initializer=bias_initializer))
-    # model.compile(optimizer=optimizer, loss='cee')
-    #
     model.fit(x_train, y_train_encoded, batch_size=1000, epochs=200, verbose=1)
 
     # plotting result
