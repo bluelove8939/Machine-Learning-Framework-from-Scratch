@@ -55,10 +55,12 @@ if __name__ == "__main__":
                     bias_initializer=bias_initializer))
     model.compile(optimizer=optimizer, loss='cee')
 
-    """model = ANNClassifier(input_size=input_size, hidden_size=hidden_size, output_size=output_size,
-                          activation='relu', optimizer=optimizer, loss='cee',
-                          kernel_initializer=kernel_initializer,
-                          bias_initializer=bias_initializer)"""
+    # # MLP model with one hidden layer
+    # model = ANNClassifier(input_size=input_size, hidden_size=hidden_size, output_size=output_size,
+    #                       activation='relu', optimizer=optimizer, loss='cee',
+    #                       kernel_initializer=kernel_initializer,
+    #                       bias_initializer=bias_initializer)
+
     model.fit(X_std, y_encoded, batch_size=100, epochs=500)
 
     # plotting result
