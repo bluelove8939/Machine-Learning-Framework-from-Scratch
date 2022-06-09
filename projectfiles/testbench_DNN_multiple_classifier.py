@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -9,6 +10,7 @@ from common.optimizers    import SGD, Adam
 from common.encoder       import one_hot_encoder
 from common.initializers  import Zeros, HeNormal, RandomNormal
 from analyzer.graphics    import plot_decision_regions
+from model_export_import  import export_model
 
 
 if __name__ == "__main__":
@@ -62,6 +64,7 @@ if __name__ == "__main__":
     #                       bias_initializer=bias_initializer)
 
     model.fit(X_std, y_encoded, batch_size=100, epochs=500)
+    export_model(model, dirpath=os.path.join(os.curdir, 'output', 'IRIS_multiple'), modelname=f'mlp_{input_size}_{output_size}', saveparams=True)
 
     # plotting result
     result = plt.figure(figsize=(12, 5))

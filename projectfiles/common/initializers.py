@@ -47,6 +47,11 @@ class HeNormal(__Initializers):
     def __call__(self, shape):
         return self.rgen.normal(loc=self.mean, scale=self.stddev, size=shape)
 
+initializers_types = {
+    'randomnormal': RandomNormal,
+    'zeros': Zeros,
+    'henormal': HeNormal,
+}
 
 if __name__ == "__main__":
     initializer = RandomNormal(mean=0, stddev=0.01)

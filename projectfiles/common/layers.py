@@ -65,6 +65,22 @@ class __NetworkLayer(metaclass=abc.ABCMeta):
     def backward(self, dout):
         return dout
 
+    @abc.abstractmethod
+    def export_metadata(self) -> dict:
+        pass
+
+    @abc.abstractmethod
+    def export_params(self) -> dict:
+        pass
+
+    @abc.abstractmethod
+    def import_metadata(self, metadata: dict):
+        pass
+
+    @abc.abstractmethod
+    def import_params(self, params_data: dict):
+        pass
+
 
 class Affine(__ConnectionLayer):
     def __init__(self, w, b):
@@ -206,8 +222,8 @@ class Dense(__NetworkLayer):
         self.bias_initializer   = bias_initializer    # bias initializer
 
         # parameters and gradients
-        self.params  = [None, None]  # first element:  kernel, gradient of kernel
-        self.grads   = [None, None]  # second element: bias, gradient of bias
+        self.params  = [np.array([]), np.array([])]  # first element:  kernel, gradient of kernel
+        self.grads   = [np.array([]), np.array([])]  # second element: bias, gradient of bias
 
         # sublayers
         self.connection = None  # layer for affine transform
@@ -242,6 +258,32 @@ class Dense(__NetworkLayer):
 
         return connection_dout
 
+    def export_metadata(self) -> dict:
+        return {
+            'type':               'dense',
+            'units':              self.units,
+            'input_shape':        self.input_shape,
+            'activation_type':    self.activation_type,
+            'kernel_initializer': self.kernel_initializer.__class__.__name__,
+            'bias_initializer':   self.bias_initializer.__class__.__name__,
+        }
+
+    def export_params(self) -> dict:
+        return {
+            'params': [param.tobytes() for param in self.params],
+            'grads':  [grad.tobytes()  for grad  in self.grads ],
+        }
+
+    def import_metadata(self, metadata: dict):
+        self.units = metadata['units']
+        self.input_shape = np.array(metadata['input_shape'])
+        self.activation_type = metadata['activation_type']
+        self.kernel_initializer = initializers.initializers_types[metadata['kernel_initializer'].lower()]
+        self.bias_initializer = initializers.initializers_types[metadata['bias_initializer'].lower()]
+
+    def import_params(self, params_data):
+        pass
+
 
 class Flatten(__NetworkLayer):
     def __init__(self, input_shape=None):
@@ -271,6 +313,25 @@ class Flatten(__NetworkLayer):
 
         return dx
 
+    def export_metadata(self) -> dict:
+        return {
+            'type':        'flatten',
+            'units':       self.units,
+            'input_shape': self.input_shape,
+            'batch_size':  self.batch_size,
+        }
+
+    def export_params(self) -> dict:
+        return {}
+
+    def import_metadata(self, metadata: dict):
+        self.units = metadata['units']
+        self.input_shape = np.array(metadata['input_shape'])
+        self.batch_size = metadata['batch_size']
+
+    def import_params(self, params_data):
+        pass
+
 
 activation_units = {
     'linear' : Linear,
@@ -285,4 +346,10 @@ loss_units = {
     'categorical_crossentropy': CrossEntropyError,
     'mse': MeanSquaredError,
     'mean_squared': MeanSquaredError
+}
+
+
+network_layer_units = {
+    'dense': Dense,
+    'flatten': Flatten,
 }
